@@ -1,0 +1,36 @@
+image: node:16.13.2
+
+stages:
+  - build
+  - deploy
+
+cache:
+  paths:
+    - node_modules
+
+build:
+  stage: build
+  variables:
+    REACT_APP_SERVER_URL: http://ec2-54-180-82-104.ap-northeast-2.compute.amazonaws.com:3001
+    REACT_APP_GOOGLE_CLIENT_ID: 529912951931-m3rceq2n2bkh24bd0fb8uob8kphue8r4.apps.googleusercontent.com
+    REACT_APP_KAKAO_CLIENT_ID: 73f4bef006e4031615b6cd8ae413a93a
+    REACT_APP_REDIRECT_URI: http://deploy.client.tiptalk.s3-website.ap-northeast-2.amazonaws.com
+    REACT_APP_RESPONSE_TYPE: code
+  script:
+    - unset CI
+    - npm install
+    - npm run build
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - build
+
+deploy-to-s3:
+  image: python:latest
+  stage: deploy
+  script:
+    - pip install awscli
+    - aws --version
+    - aws s3 sync build s3://deploy.client.tiptalk
+  only:
+    - main
