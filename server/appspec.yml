@@ -1,0 +1,14 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu/build
+
+hooks:
+  BeforeInstall:
+    - location: scripts/before.sh
+      runas: root
+  AfterInstall:
+    - location: scripts/init.sh
+    - location: scripts/export.sh
+      runas: root
